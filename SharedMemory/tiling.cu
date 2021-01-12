@@ -19,7 +19,6 @@ using namespace std;
 A common strategy is to partition the data into subsets
 called "tiles" so that each tile fits into the shared
 memory
-
 */
 
 
@@ -30,7 +29,7 @@ memory
 #define clamp(x) (min(max((x), 0.0), 1.0))
 
 
-__global__ void tilingKernelProcessing(float * InputImageData, const float *__restrict__ kernel,
+__global__ void SharedMemoryConvolution(float * InputImageData, const float *__restrict__ kernel,
 		float* outputImageData, int channels, int width, int height){
 
 	__shared__ float N_ds[BLOCK_WIDTH][BLOCK_WIDTH];  //block of image in shared memory
@@ -41,7 +40,7 @@ __global__ void tilingKernelProcessing(float * InputImageData, const float *__re
  	for (int k = 0; k <channels; k++) {
  		int dest = threadIdx.y * TILE_WIDTH + threadIdx.x; // flatten the 2D coordinates of the generic thread
  		int destY = dest/BLOCK_WIDTH;   //row of shared memory (makes the inverse operation , in that it calculates the 2D coordinates )
- 		int destX = dest%BLOCK_WIDTH;	//col of shared memory (of the generica thread with respect to the shared memory area )
+ 		int destX = dest%BLOCK_WIDTH;	//col of shared memory (of the generica thread with respect to the shared memory area )	
  		int srcY = blockIdx.y *TILE_WIDTH + destY - maskRadius; // index to fetch data from input image
  		int srcX = blockIdx.x *TILE_WIDTH + destX - maskRadius; // index to fetch data from input image
  		int src = (srcY *width +srcX) * channels + k;   // index of input image
@@ -88,7 +87,7 @@ __global__ void tilingKernelProcessing(float * InputImageData, const float *__re
 
 }
 
-void imageConvolutionTiling(const char* inputfilepath, const char* outputfilepath ){
+void imageConvolutionSharedMemory(const char* inputfilepath, const char* outputfilepath ){
 
 	int imgChannels;
 	int imgHeight;
@@ -142,12 +141,11 @@ void imageConvolutionTiling(const char* inputfilepath, const char* outputfilepat
 
 
 	cout << "CONVOLUTION SHARED MEMORY" << endl;
-	cout << "image dimensions: "<< imgWidth << "x" << imgHeight << endl;
-	cout << "start parallelizing" << endl;
-	cout << "elapsed in time: ";
+    cout << "Image dimensions : " << imgWidth << "x" << imgHeight << " , Channels : " << imgChannels << endl;
+	cout << "Time: ";
 	high_resolution_clock::time_point start= high_resolution_clock::now();
 
-	tilingKernelProcessing<<<dimGrid,dimBlock>>>(deviceInputImageData, deviceMaskData, deviceOutputImageData,
+	SharedMemoryConvolution<<<dimGrid,dimBlock>>>(deviceInputImageData, deviceMaskData, deviceOutputImageData,
 	imgChannels, imgWidth, imgHeight);
 
 	high_resolution_clock::time_point end= high_resolution_clock::now();
@@ -178,9 +176,9 @@ void imageConvolutionTiling(const char* inputfilepath, const char* outputfilepat
 
 int main(){
 
-	imageConvolutionTiling("/home/aventuri/progetto/sharedmemory/photoSD.ppm","/home/aventuri/progetto/sharedmemory/resultSDSM.ppm");
-	imageConvolutionTiling("/home/aventuri/progetto/sharedmemory/photoHD1.ppm","/home/aventuri/progetto/sharedmemory/resultHD1SM.ppm");
-	imageConvolutionTiling("/home/aventuri/progetto/sharedmemory/photoHD2.ppm","/home/aventuri/progetto/sharedmemory/resultHD2SM.ppm");
-	imageConvolutionTiling("/home/aventuri/progetto/sharedmemory/photo4K.ppm","/home/aventuri/progetto/sharedmemory/result4KSM.ppm");	
+	imageConvolutionSharedMemory("/home/aventuri/progetto/sharedmemory/photoSD.ppm","/home/aventuri/progetto/sharedmemory/resultSDSM.ppm");
+	imageConvolutionSharedMemory("/home/aventuri/progetto/sharedmemory/photoHD1.ppm","/home/aventuri/progetto/sharedmemory/resultHD1SM.ppm");
+	imageConvolutionSharedMemory("/home/aventuri/progetto/sharedmemory/photoHD2.ppm","/home/aventuri/progetto/sharedmemory/resultHD2SM.ppm");
+	imageConvolutionSharedMemory("/home/aventuri/progetto/sharedmemory/photo4K.ppm","/home/aventuri/progetto/sharedmemory/result4KSM.ppm");	
 
 }

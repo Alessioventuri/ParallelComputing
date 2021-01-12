@@ -19,7 +19,8 @@ using namespace std;
 
 // mask in constant memory
 __constant__ float deviceMaskData[maskRows * maskCols];
-__global__ void constantKernelConvolution(float * InputImageData, const float *__restrict__ kernel,
+
+__global__ void constantMemoryConvolution(float * InputImageData, const float *__restrict__ kernel,
 		float* outputImageData, int channels, int width, int height){
 
 	float Pvalue = 0;
@@ -58,7 +59,7 @@ __global__ void constantKernelConvolution(float * InputImageData, const float *_
 	
 }
 
-void imageConvolutionConstant(const char* inputfilepath, const char* outputfilepath ){
+void imageConvolutionConstantMemory(const char* inputfilepath, const char* outputfilepath ){
 
 	int imgChannels;
     int imgWidth;
@@ -113,12 +114,12 @@ void imageConvolutionConstant(const char* inputfilepath, const char* outputfilep
     high_resolution_clock::time_point start = high_resolution_clock::now();
 
 								// N x 256 threads
-    constantKernelConvolution <<<dimGrid, dimBlock >>>(deviceInputImageData, deviceMaskData, deviceOutputImageData,
+    constantMemoryConvolution <<<dimGrid, dimBlock >>>(deviceInputImageData, deviceMaskData, deviceOutputImageData,
         imgChannels, imgWidth, imgHeight);
 
     high_resolution_clock::time_point end = high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
-    cout << duration.count() * 1000 << endl;
+    cout << "Time: " << duration.count() * 1000 << endl;
     cout << "----------------------------------" << endl;
 
     // copies "count" bytes from the memory area pointed to by deviceOutputImageData to the memory area pointer to by hostOutputImageData
@@ -145,10 +146,10 @@ void imageConvolutionConstant(const char* inputfilepath, const char* outputfilep
 
 int main() {
 
-	imageConvolutionConstant("/home/aventuri/progetto/constantmemory/photoSD.ppm","/home/aventuri/progetto/constantmemory/resultSD.ppm");
-	imageConvolutionConstant("/home/aventuri/progetto/constantmemory/photoHD1.ppm","/home/aventuri/progetto/constantmemory/resultHD1.ppm");
-	imageConvolutionConstant("/home/aventuri/progetto/constantmemory/photoHD2.ppm","/home/aventuri/progetto/constantmemory/resultHD2.ppm");
-	imageConvolutionConstant("/home/aventuri/progetto/constantmemory/photo4K.ppm","/home/aventuri/progetto/constantmemory/result4K.ppm");
+	imageConvolutionConstantMemory("/home/aventuri/progetto/constantmemory/photoSD.ppm","/home/aventuri/progetto/constantmemory/resultSDCM.ppm");
+	imageConvolutionConstantMemory("/home/aventuri/progetto/constantmemory/photoHD1.ppm","/home/aventuri/progetto/constantmemory/resultHD1CM.ppm");
+	imageConvolutionConstantMemory("/home/aventuri/progetto/constantmemory/photoHD2.ppm","/home/aventuri/progetto/constantmemory/resultHD2CM.ppm");
+	imageConvolutionConstantMemory("/home/aventuri/progetto/constantmemory/photo4K.ppm","/home/aventuri/progetto/constantmemory/result4KCM.ppm");
 
 }
 
