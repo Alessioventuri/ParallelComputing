@@ -79,7 +79,7 @@ __global__ void SharedMemoryConvolution(float * InputImageData, const float *__r
  		y = blockIdx.y * TILE_WIDTH + threadIdx.y;
  		x = blockIdx.x * TILE_WIDTH + threadIdx.x;
  		if(y < height && x < width)
- 			outputImageData[(y * width + x) * channels + k] = clamp(Pvalue);
+ 			outputImageData[(y * width + x) * channels + k] = Pvalue;
  		__syncthreads();
 
 

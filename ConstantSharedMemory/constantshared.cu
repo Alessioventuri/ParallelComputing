@@ -47,11 +47,11 @@ __global__ void ConstantSharedMemoryConvolution(float * InputImageData, const fl
  		else
  			N_ds[destY][destX] = 0;
 
- 		dest = threadIdx.y * TILE_WIDTH+ threadIdx.x + (TILE_WIDTH * TILE_WIDTH);
+ 		dest = threadIdx.y * TILE_WIDTH+ threadIdx.x + TILE_WIDTH * TILE_WIDTH;
  		destY = dest/BLOCK_WIDTH;
 		destX = dest%BLOCK_WIDTH;
-		srcY = blockIdx.y *TILE_WIDTH + destY - maskRadius;
-		srcX = blockIdx.x *TILE_WIDTH + destX - maskRadius;
+		srcY = blockIdx.y * TILE_WIDTH + destY - maskRadius;
+		srcX = blockIdx.x * TILE_WIDTH + destX - maskRadius;
 		src = (srcY *width +srcX) * channels + k;
 		if(destY < BLOCK_WIDTH){
 			if(srcY>= 0 && srcY < height && srcX>=0 && srcX < width)
@@ -74,7 +74,7 @@ __global__ void ConstantSharedMemoryConvolution(float * InputImageData, const fl
  		y = blockIdx.y * TILE_WIDTH + threadIdx.y;
  		x = blockIdx.x * TILE_WIDTH + threadIdx.x;
  		if(y < height && x < width)
- 			outputImageData[(y * width + x) * channels + k] = clamp(Pvalue);
+ 			outputImageData[(y * width + x) * channels + k] = Pvalue;
  		__syncthreads();
 
 
@@ -115,14 +115,12 @@ void imageConvolutionConstantSharedMemory(const char* inputfilepath, const char*
     hostOutputImageData = img_getData(imgOutput);
 
 	cudaDeviceReset();
+	
 	cudaMalloc((void **) &deviceInputImageData, imgWidth * imgHeight *
 			imgChannels * sizeof(float));
 			
 	cudaMalloc((void **) &deviceOutputImageData, imgWidth * imgHeight *
 			imgChannels * sizeof(float));
-			
-	cudaMalloc((void **) &deviceMaskData, maskRows * maskCols
-			* sizeof(float));
 			
 	cudaMemcpy(deviceInputImageData, hostInputImageData,
 			imgWidth * imgHeight * imgChannels * sizeof(float),
