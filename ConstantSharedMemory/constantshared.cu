@@ -136,7 +136,7 @@ void imageConvolutionConstantSharedMemory(const char* inputfilepath, const char*
 
 	high_resolution_clock::time_point end= high_resolution_clock::now();
 	chrono::duration<double>  duration = end - start;
-	cout << duration.count()*1000 << endl;
+	cout << duration.count()*1000 << " millisec" <<endl;
 	cout << "----------------------------------" << endl;
 
 	cudaMemcpy(hostOutputImageData, deviceOutputImageData, imgWidth * imgHeight *

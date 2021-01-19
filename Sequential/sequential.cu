@@ -96,7 +96,7 @@ void ImageSequentialConvolution(const char* inputfilepath, const char* outputfil
     sequentialConvolution(inputImage, outputImageData, imgChannels, imgWidth, imgHeight, kernelWidth, kernelHeight, kernel);
 	high_resolution_clock::time_point endSeq = high_resolution_clock::now();
 	auto durationSeq = (double) duration_cast<milliseconds>(endSeq - start).count() / 1000;
-	cout << "Time: " << durationSeq << endl;
+	cout << "Time: " << durationSeq << " sec " << endl;
 	img_setData(outputImage, outputImageData);
 	write_image(outputfilepath, outputImage);
 	cout << "-------------------------" << endl;

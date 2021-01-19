@@ -119,7 +119,7 @@ void imageConvolutionConstantMemory(const char* inputfilepath, const char* outpu
 
     high_resolution_clock::time_point end = high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
-    cout << "Time: " << duration.count() * 1000 << endl;
+    cout << "Time: " << duration.count() * 1000 << " millisec"<< endl;
     cout << "----------------------------------" << endl;
 
     // copies "count" bytes from the memory area pointed to by deviceOutputImageData to the memory area pointer to by hostOutputImageData
